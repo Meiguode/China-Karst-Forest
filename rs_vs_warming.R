@@ -1,34 +1,26 @@
-# Load libraries
 library(ggplot2)
 library(dplyr)
 library(readr)
 
-# Set custom color palette
 custom_palette <- c("#003049", "#d62828", "#f77f00", "#fcbf49", "#eae2b7")
 
-# Load data
 rs_data <- read_csv("yearly_Rs_differences.csv")
 mat_data <- read_csv("yearly_MAT_warming.csv")
 t5_data  <- read_csv("yearly_T5_warming.csv")
 
-# Compute % Rs change
 rs_data <- rs_data %>%
   mutate(Rs_percent_change = (DiffRs / AvgRs) * 100)
 
-# Merge and label CW
 cw_data <- rs_data %>%
   inner_join(mat_data, by = "Year") %>%
   mutate(Source = "CW")
 
-# Merge and label SW
 sw_data <- rs_data %>%
   inner_join(t5_data, by = "Year") %>%
   mutate(Source = "SW")
 
-# Combine both
 plot_data <- bind_rows(cw_data, sw_data)
 
-# Create plot
 p <- ggplot(plot_data, aes(x = Rounded, y = Rs_percent_change, color = Source)) +
   geom_point(size = 3, alpha = 0.6, stroke = 0) +
   geom_smooth(method = "lm", se = FALSE, size = 1.2) +
@@ -47,6 +39,5 @@ p <- ggplot(plot_data, aes(x = Rounded, y = Rs_percent_change, color = Source)) 
     plot.background = element_rect(fill= "white", color = NA)
   )
 
-# Save as TIFF and PDF
 ggsave("Rs_vs_Warming.tiff", plot = p, dpi = 600, width = 7, height = 5, units = "in", compression = "lzw")
 ggsave("Rs_vs_Warming.pdf",  plot = p, dpi = 600, width = 7, height = 5, units = "in")
